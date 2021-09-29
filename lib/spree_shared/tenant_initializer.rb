@@ -21,7 +21,9 @@ class SpreeShared::TenantInitializer
 
   def load_spree_sample_data
     Apartment::Tenant.switch(db_name) do
-      SpreeSample::Engine.load_samples
+      if ENV['LOAD_SAMPLE_DATA_IN_TENANT']
+        SpreeSample::Engine.load_samples
+      end
     end
   end
 
@@ -35,8 +37,8 @@ class SpreeShared::TenantInitializer
                             :password_confirmation => password,
                             :email => email,
                             :login => email)
-        role = Spree::Role.find_or_create_by_name "admin"
-        admin.roles << role
+        role = Spree::Role.find_or_create_by name: "admin"
+        admin.spree_roles << role
         admin.save
       end
     end
